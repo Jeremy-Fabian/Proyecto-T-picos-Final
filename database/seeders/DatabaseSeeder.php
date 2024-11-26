@@ -19,7 +19,11 @@ class DatabaseSeeder extends Seeder
         //     'email' => 'test@example.com',
         // ]);
 
-        $this->call(VehiclecolorSeeder::class);
+        $this->call(DepartmentSeeder::class);
+        $this->call(ProvinceSeeder::class);
+        $this->call(DistrictSeeder::class);
+        $this->call(SectorSeeder::class);
         $this->call(VehicletypeSeeder::class);
+        $this->call(VehiclecolorSeeder::class);
     }
 }

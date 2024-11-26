@@ -21,7 +21,7 @@ class VehicleController extends Controller
      */
     public function index(Request $request)
     {
-        $vehicles = DB::select('CALL sp_vehicles');
+        $vehicles = DB::select('SELECT * FROM sp_vehicles();');
 
         if ($request->ajax()) {
 
@@ -48,7 +48,10 @@ class VehicleController extends Controller
                         </div>
                     </div>';
                 })
-                ->rawColumns(['logo', 'status', 'actions'])  // Declarar columnas que contienen HTML
+                ->addColumn('occupants', function () {
+                    return '<button class="btn btn-success btn-sm"><i class="fas fa-people-arrows"></i>&nbsp;&nbsp;(0)</button>';
+                })
+                ->rawColumns(['logo', 'status', 'occupants', 'actions'])  // Declarar columnas que contienen HTML
                 ->make(true);
         } else {
             return view('admin.vehicles.index', compact('vehicles'));
@@ -169,7 +172,7 @@ class VehicleController extends Controller
             return response()->json(['message' => 'Vehículo actualizado correctamente'], 200);
         } catch (\Throwable $th) {
 
-            return response()->json(['message' => 'Error en el registro: ' . $th->getMessage()], 500);
+            return response()->json(['message' => 'Error en la actualización: ' . $th->getMessage()], 500);
         }
     }
 

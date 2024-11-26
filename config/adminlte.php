@@ -341,6 +341,7 @@ return [
                     'route' => 'admin.models.index',
                     'icon' => 'fas fa-trailer',
                 ],
+               
                 [
                     'text' => 'Tipos',
                     'url' => 'admin/settings',
@@ -372,17 +373,17 @@ return [
         ['header' => 'GESTIÓN DE RUTAS'],
         [
             'text' => 'Sectores',
-            'url' => 'admin/settings',
+            'route' => 'admin.sectors.index',
             'icon' => 'fas fa-layer-group',
         ],
         [
             'text' => 'Zonas',
-            'url' => 'admin/settings',
+            'route' => 'admin.zones.index',
             'icon' => 'fas fa-map-signs',
         ],
         [
             'text' => 'Rutas',
-            'url' => 'admin/settings',
+            'route' => 'admin.routes.index',
             'icon' => 'fas fa-route',
         ],
         /*[
@@ -396,12 +397,12 @@ return [
             'submenu' => [
                 [
                     'text' => 'Horarios',
-                    'route' => 'admin.brands.index',
+                    'route' => 'admin.schedules.index',
                     'icon' => 'fas fa-clock',
                 ],
                 [
                     'text' => 'Programación de Rutas',
-                    'route' => 'admin.models.index',
+                    'route' => 'admin.vehicleroutes.index',
                     'icon' => 'fas fa-calendar-alt',
                 ],
             ]

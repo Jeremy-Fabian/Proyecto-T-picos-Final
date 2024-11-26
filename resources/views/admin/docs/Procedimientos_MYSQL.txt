@@ -1,0 +1,36 @@
+  PARA VEHICULOS
+  select 
+    v.id, v3.image as logo, v.name as name, b.name as brand, b2.name as model,
+    v2.name as vtype, v.plate as plate, v.status as status
+    from vehicles v
+    inner join brands b on v.brand_id = b.id
+    inner join brandmodels b2 on v.model_id = b2.id
+    inner join vehicletypes v2 on v.type_id = v2.id
+    left join vehicleimages v3 on (v.id = v3.vehicle_id and v3.profile=1);
+
+PARA ZONAS
+SELECT z.id as id, z.name as name, z.area as area, s.name as sector, z.description as description
+	FROM zones z
+	inner join sectors s on z.sector_id = s.id;
+  
+  PARA ZONAS CON PARAMETROS
+  if _operacion = 1 then
+        SELECT z.id AS id, z.name AS name, z.area AS area, 
+               s.name AS sector, z.description AS description
+        FROM zones z
+        INNER JOIN sectors s ON z.sector_id = s.id;
+  end if;
+    if _operacion = 2 then
+        SELECT z.id AS id, z.name AS name, z.area AS area, 
+               s.name AS sector, z.description AS description
+        FROM zones z
+        INNER JOIN sectors s ON z.sector_id = s.id
+        WHERE z.id = _id;
+    end if;
+ 
+ PARA SECTORES
+
+ SELECT z.name as zone, z2.latitude, z2.longitude
+	from zones z
+	inner join zonecoords z2 on z.id = z2.zone_id
+	where z.sector_id=_id;
