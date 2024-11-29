@@ -25,8 +25,13 @@ class User extends Authenticatable
      */
     protected $fillable = [
         'name',
+        'dni',
+        'birthdate',
+        'address',
         'email',
         'password',
+        'usertype_id',
+        'profile_photo_path',
     ];
 
     /**
@@ -58,4 +63,6 @@ class User extends Authenticatable
     protected $appends = [
         'profile_photo_url',
     ];
+    #PARA EL REGISTRO
+    protected $guarded = [];
 }

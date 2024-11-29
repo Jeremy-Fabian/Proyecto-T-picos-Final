@@ -12,6 +12,9 @@ use App\Http\Controllers\admin\VehicleimagesController;
 use App\Http\Controllers\admin\VehiclerouteController;
 use App\Http\Controllers\admin\ZoneController;
 use App\Http\Controllers\admin\ZonecoordController;
+use App\Http\Controllers\admin\UserController;
+use App\Http\Controllers\admin\UserTypesController;
+use Laravel\Jetstream\Rules\Role;
 
 Route::resource('brands', BrandController::class)->names('admin.brands');
 Route::resource('models', BrandmodelController::class)->names('admin.models');
@@ -26,3 +29,7 @@ Route::resource('sectors', SectorController::class)->names('admin.sectors');
 Route::resource('routes', RouteController::class)->names('admin.routes');
 Route::resource('schedules', ScheduleController::class)->names('admin.schedules');
 Route::resource('vehicleroutes', VehiclerouteController::class)->names('admin.vehicleroutes');
+
+Route::resource('usertypes',UserTypesController::class)->names('admin.usertypes');
+
+Route::resource('users',UserController::class)->names('admin.users');
