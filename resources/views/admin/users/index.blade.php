@@ -24,6 +24,7 @@
                         <th>DIRECCIÓN</th>
                         <th>EMAIL</th>
                         <th>TIPO</th>
+                        <th>LICENCIA</th>
                         <th>ZONA</th>
 
 
@@ -88,6 +89,9 @@
                         "data": "typename",
                     },
                     {
+                        "data": "license",
+                    },
+                    {
                         "data": "zname",
                     },
                     {
@@ -123,6 +127,46 @@
                     $("#formModal #exampleModalLabel").html("Nuevo Personal");
                     $("#formModal .modal-body").html(response);
                     $("#formModal").modal("show");
+                    // Inicializar eventos para elementos dinámicos
+                    //--------------------------------------------------------------
+                    const userTypeField = document.getElementById('usertype_id');
+                    //--------------------------------------------------------------
+
+                    const licenseField = document.getElementById('licenseField');
+                    const licenseInput = document.getElementById('license');
+
+                    if (userTypeField && licenseField && licenseInput) {
+                        userTypeField.addEventListener('change', function() {
+                            const userType = this.options[this.selectedIndex].text
+                                .toLowerCase();
+                            if (userType === 'conductor') {
+                                licenseField.style.display = 'block';
+                                licenseInput.required = true; // Hacer obligatorio
+                            } else {
+                                licenseField.style.display = 'none';
+                                licenseInput.required = false; // Quitar obligatoriedad
+                            }
+                        });
+                    }
+                    //----------------------------------------------------------------------------
+                    // Inicializar eventos para elementos dinámicos
+                    const zonaField = document.getElementById('zonaField');
+                    const zonaInput = document.getElementById('zone_id');
+
+                    if (userTypeField && zonaField && zonaInput) {
+                        userTypeField.addEventListener('change', function() {
+                            const userType = this.options[this.selectedIndex].text
+                                .toLowerCase();
+                            if (userType === 'ciudadano') {
+                                zonaField.style.display = 'block';
+                                zonaInput.required = true; // Hacer obligatorio
+                            } else {
+                                zonaField.style.display = 'none';
+                                zonaInput.required = false; // Quitar obligatoriedad
+                            }
+                        });
+                    }
+                    //----------------------------------------------------------------------------
 
                     $("#formModal form").on("submit", function(e) {
                         e.preventDefault();
@@ -165,6 +209,46 @@
                     $("#formModal .modal-body").html(response);
                     $("#formModal").modal("show");
 
+                    // Inicializar eventos para elementos dinámicos
+                    const userTypeField = document.getElementById('usertype_id');
+                    const licenseField = document.getElementById('licenseField');
+                    const licenseInput = document.getElementById('license');
+                    const zonaField = document.getElementById('zonaField');
+                    const zonaInput = document.getElementById('zone_id');
+
+                    // Función para manejar la visibilidad de los campos según el tipo de usuario
+                    function handleUserTypeChange() {
+                        const selectedUserType = userTypeField.options[userTypeField.selectedIndex].text
+                            .toLowerCase();
+
+                        // Mostrar/Ocultar campo licencia
+                        if (selectedUserType === 'conductor') {
+                            licenseField.style.display = 'block';
+                            licenseInput.required = true;
+                        } else {
+                            licenseField.style.display = 'none';
+                            licenseInput.required = false;
+                        }
+
+                        // Mostrar/Ocultar campo zona
+                        if (selectedUserType === 'ciudadano') {
+                            zonaField.style.display = 'block';
+                            zonaInput.required = true;
+                        } else {
+                            zonaField.style.display = 'none';
+                            zonaInput.required = false;
+                        }
+                    }
+
+                    // Verificación inicial al cargar el modal
+                    if (userTypeField) {
+                        handleUserTypeChange();
+
+                        // Listener para cambios en el tipo de usuario
+                        userTypeField.addEventListener('change', handleUserTypeChange);
+                    }
+
+                    // Envío del formulario
                     $("#formModal form").on("submit", function(e) {
                         e.preventDefault();
 
@@ -180,21 +264,19 @@
                             success: function(response) {
                                 $("#formModal").modal("hide");
                                 refreshTable();
-                                Swal.fire('Proceso existoso', response.message,
+                                Swal.fire('Proceso exitoso', response.message,
                                     'success');
                             },
                             error: function(xhr) {
                                 var response = xhr.responseJSON;
                                 Swal.fire('Error', response.message, 'error');
                             }
-                        })
-
-                    })
+                        });
+                    });
                 }
             });
+        });
 
-
-        })
 
         $(document).on('submit', '.frmEliminar', function(e) {
             e.preventDefault();

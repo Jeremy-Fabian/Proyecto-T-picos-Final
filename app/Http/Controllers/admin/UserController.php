@@ -5,6 +5,7 @@ namespace App\Http\Controllers\admin;
 use App\Http\Controllers\Controller;
 use App\Models\User;
 use App\Models\Usertype;
+use App\Models\Zone;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Yajra\DataTables\Facades\DataTables;
@@ -24,6 +25,7 @@ class UserController extends Controller
             'users.address',
             'users.email',
             'usertypes.name as typename',
+            'users.license', #añado el campo licencia
             'zones.name as zname'
         )
             #leftjoin para listar hasta los que no tengan tipo o zona
@@ -67,8 +69,10 @@ class UserController extends Controller
      */
     public function create()
     {
+        $user = null;
         $userTypes = Usertype::pluck('name', 'id');
-        return view('admin.users.create', compact('userTypes'));
+        $zones = Zone::pluck('name', 'id'); // Obtén las zonas como array [id => name]
+        return view('admin.users.create', compact('user', 'userTypes', 'zones')); //AÑADI USER AL FINAL
     }
 
     /**
@@ -86,8 +90,16 @@ class UserController extends Controller
                 'email' => 'required|string|email|max:255|unique:users,email',
                 'password' => 'required|string|min:8',
                 'usertype_id' => 'required|integer|exists:usertypes,id',
+                'zone_id' => 'nullable|integer|exists:zones,id',
                 'profile_photo_path' => 'nullable|image|max:2048',
+                'license' => 'nullable|string|max:20|unique:users,license,', // Agregamos validación para 'license'
             ]);
+            // Validación adicional para licencia si el tipo de usuario es 'Conductor'
+            if ($request->usertype_id == $this->getConductorTypeId()) { // Reemplaza con tu lógica para obtener el ID de conductor
+                $request->validate([
+                    'license' => 'required|string|max:20|regex:/^[A-Z0-9]{7,20}$/', // Formato de licencia
+                ]);
+            }
 
             // Manejo de la foto de perfil
             $profilePhotoPath = '';
@@ -105,6 +117,8 @@ class UserController extends Controller
                 'email' => $request->email,
                 'password' => bcrypt($request->password), // Encripta la contraseña
                 'usertype_id' => $request->usertype_id,
+                'zone_id' => $request->zone_id,
+                'license' => $request->license ?? null, // Almacena la licencia solo si está presente
                 'profile_photo_path' => $profilePhotoPath,
             ]);
 
@@ -130,7 +144,8 @@ class UserController extends Controller
     {
         $user = User::find($id);
         $userTypes = Usertype::pluck('name', 'id');
-        return view('admin.users.edit', compact('user', 'userTypes'));
+        $zones = Zone::pluck('name', 'id'); // Obtén las zonas como array [id => name]
+        return view('admin.users.edit', compact('user', 'userTypes', 'zones'));
     }
 
     /**
@@ -151,8 +166,21 @@ class UserController extends Controller
                 'email' => 'required|string|email|max:255|unique:users,email,' . $id,
                 'password' => 'nullable|string|min:8', // Opcional para no siempre cambiarla
                 'usertype_id' => 'required|integer|exists:usertypes,id',
+                'zone_id' => 'nullable|integer|exists:zones,id',
                 'profile_photo_path' => 'nullable|image|max:2048',
+                'license' => 'nullable|string|max:20|unique:users,license,' . $id, // Validación base para 'license'
             ]);
+
+            // Validación adicional para licencia si el tipo de usuario es 'Conductor'
+            if ($request->usertype_id == $this->getConductorTypeId()) { // Reemplaza con tu lógica para obtener el ID de conductor
+                $request->validate([
+                    'license' => 'required|string|max:20|regex:/^[A-Z0-9]{7,20}$/', // Formato de licencia
+                ]);
+            } else {
+                // Si el tipo de usuario no es "Conductor", asegura que no se guarde licencia
+                $request->merge(['license' => null]);
+            }
+
 
             // Manejo de la foto de perfil (si se envía una nueva)
             if ($request->hasFile('profile_photo_path')) {
@@ -176,6 +204,8 @@ class UserController extends Controller
                 $user->password = bcrypt($request->password);
             }
             $user->usertype_id = $request->usertype_id;
+            $user->zone_id = $request->zone_id;
+            $user->license = $request->license; // Actualiza el campo 'license'
 
             // Guarda los cambios
             $user->save();
@@ -210,5 +240,10 @@ class UserController extends Controller
         } catch (\Throwable $th) {
             return response()->json(['message' => 'Error de eliminación: ' . $th->getMessage()], 500);
         }
+    }
+    private function getConductorTypeId()
+    {
+        // Asume que tienes un método para obtener el ID del tipo de usuario "Conductor".
+        return UserType::where('name', 'Conductor')->value('id');
     }
 }

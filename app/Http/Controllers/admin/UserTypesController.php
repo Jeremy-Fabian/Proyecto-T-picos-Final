@@ -111,7 +111,7 @@ class UserTypesController extends Controller
             $usertypes->delete();
             return response()->json(['message' => 'Tipo eliminado'], 200);
         } catch (\Throwable $th) {
-            return response()->json(['message' => 'Error al eliminar el tipo'], 500);
+            return response()->json(['message' => 'Error al eliminar el tipo, ya esta asignado a usuarios'], 500);
         }
     }
 }

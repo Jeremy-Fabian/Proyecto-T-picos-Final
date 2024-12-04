@@ -31,6 +31,8 @@ class User extends Authenticatable
         'email',
         'password',
         'usertype_id',
+        'license',
+        'zone_id',
         'profile_photo_path',
     ];
 
