@@ -15,6 +15,7 @@ class UserTypesController extends Controller
      */
     public function index(Request $request)
     {
+
         $usertypes = DB::select('SELECT * FROM usertypes');
 
 
@@ -22,6 +23,20 @@ class UserTypesController extends Controller
 
             return DataTables::of($usertypes)
                 ->addColumn('actions', function ($usertype) {
+                    // Excluir acciones para IDs 1, 2, 3 y 4
+                    if (in_array($usertype->id, [1, 2, 3, 4])) {
+                        return '
+                    <div class="dropdown">
+                        <button class="btn btn-primary btn-sm dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                            <i class="fas fa-bars"></i>                        
+                        </button>
+                        <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
+                            <button class="dropdown-item" onclick="alert(\'Este dato no puede editarse ni eliminarse\')">
+                                <i class="fas fa-info-circle"></i> Acción no permitida
+                            </button>
+                        </div>
+                    </div>';
+                    }
                     return '
                     <div class="dropdown">
                         <button class="btn btn-primary btn-sm dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
@@ -66,7 +81,6 @@ class UserTypesController extends Controller
         } catch (\Throwable $th) {
             return response()->json(['message' => 'Error en el registro: ' . $th->getMessage()], 500);
         }
-
     }
 
     /**
