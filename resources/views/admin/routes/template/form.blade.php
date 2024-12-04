@@ -5,12 +5,7 @@
 
 <div class="form-group">
     {!! Form::label('zone_id', 'Zona') !!}
-    {!! Form::select(
-        'zone_id',
-        ['' => 'Seleccione una zona'] + $zones->toArray(), // Opciones
-        isset($currentZoneId) ? $currentZoneId : null, // Selección predefinida
-        ['class' => 'form-control', 'required']
-    ) !!}
+    {!! Form::select('zone_id', $zones, null, ['class' => 'form-control', 'required']) !!}
 </div>
 
 <div class="form-check">
@@ -61,6 +56,9 @@
     </div>
 </div>
 <div id="map" class="card" style="width: 100%; height:400px;"></div>
+
+
+
 <script>
     var perimeters = @json($perimeter);
 

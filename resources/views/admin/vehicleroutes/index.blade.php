@@ -10,6 +10,7 @@
     <div class="p-2"></div>
     <div class="card">
         <div class="card-header">
+            <button class="btn btn-warning float-right ml-2" id="btnEditProgram"><i class="fas fa-edit"></i> Editar Programación</button>
             <button class="btn btn-success float-right" id="btnNuevo"><i class="fas fa-plus"></i> Nuevo</button>
             <h3>Programación rutas</h3>
         </div>
@@ -38,7 +39,7 @@
     <!-- Modal -->
     <div class="modal fade" id="formModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel"
         aria-hidden="true">
-        <div class="modal-dialog" role="document">
+        <div class="modal-dialog modal-lg" role="document">
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="exampleModalLabel">Formulario de la modelo</h5>
@@ -159,6 +160,47 @@
                 type: "GET",
                 success: function(response) {
                     $("#formModal #exampleModalLabel").html("Modificar Programación");
+                    $("#formModal .modal-body").html(response);
+                    $("#formModal").modal("show");
+
+                    $("#formModal form").on("submit", function(e) {
+                        e.preventDefault();
+
+                        var form = $(this);
+                        var formData = new FormData(this);
+
+                        $.ajax({
+                            url: form.attr('action'),
+                            type: form.attr('method'),
+                            data: formData,
+                            processData: false,
+                            contentType: false,
+                            success: function(response) {
+                                $("#formModal").modal("hide");
+                                refreshTable();
+                                Swal.fire('Proceso existoso', response.message,
+                                    'success');
+                            },
+                            error: function(xhr) {
+                                var response = xhr.responseJSON;
+                                Swal.fire('Error', response.message, 'error');
+                            }
+                        })
+
+                    })
+                }
+            });
+
+
+        })
+
+
+        $('#btnEditProgram').click(function() {
+            $.ajax({
+                url: "{{ route('admin.editAllPrograms') }}",
+                type: "GET",
+                success: function(response) {
+                    $("#formModal #exampleModalLabel").html("Modificar Programación por Vehiculo");
                     $("#formModal .modal-body").html(response);
                     $("#formModal").modal("show");
 

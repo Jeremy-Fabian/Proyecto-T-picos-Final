@@ -31,8 +31,27 @@ class ZonecoordController extends Controller
     public function store(Request $request)
     {
         try {
-            Zonecoord::create($request->all());
-            return response()->json(['message' => 'Coordenada registrada'], 200);
+             // Validación de los datos recibidos
+        $validated = $request->validate([
+            'markers.*.latitude' => 'required|numeric',
+            'markers.*.longitude' => 'required|numeric',
+            'markers.*.zone_id' => 'required|integer',
+        ]);
+
+        if (isset($request->markers) && is_array($request->markers)) {
+            foreach ($request->markers as $marker) {
+                // Crear o guardar las coordenadas en la base de datos
+                Zonecoord::create([
+                    'latitude' => $marker['latitude'],
+                    'longitude' => $marker['longitude'],
+                    'zone_id' => (int) $marker['zone_id'],  // Asegúrate de que zone_id es un entero
+                ]);
+            }
+
+            return response()->json(['message' => 'Coordenadas registradas con éxito'], 200);
+        } else {
+            return response()->json(['message' => 'No se encontraron datos de marcadores válidos'], 400);
+        }
         } catch (\Throwable $th) {
             return response()->json(['message' => 'Error en el registro: ' . $th->getMessage()], 500);
         }
@@ -69,10 +88,15 @@ class ZonecoordController extends Controller
      */
     public function edit(string $id)
     {
-        $lastCoords = Zonecoord::select(
-            'latitude as lat',
-            'longitude as lng'
-        )->where('zone_id', $id)->latest()->first();
+        // $lastCoords = Zonecoord::select(
+        //     'latitude as lat',
+        //     'longitude as lng'
+        // )->where('zone_id', $id)->latest()->first();
+
+        $lastCoords = Zonecoord::select('latitude as lat', 'longitude as lng')
+        ->where('zone_id', $id)
+        ->orderBy('id', 'desc')  // Ordenar por el ID en orden descendente (el más alto será el último)
+        ->first();
 
         // $vertice = Zonecoord::select(
         //     'latitude as lat',
@@ -92,7 +116,7 @@ class ZonecoordController extends Controller
         });
 
 
-        $zonescoords = collect(DB::select("SELECT * FROM sp_zonecoords();"));
+        $zonescoords = collect(DB::select("SELECT * FROM sp_zonecoords_id($id);"));
 
         $groupedZones= $zonescoords->groupBy("zone");
 
@@ -100,8 +124,8 @@ class ZonecoordController extends Controller
             
             $coords = $zone->map(function($item){
                 return[
-                    'lat'=> $item->latitude,
-                    'lng'=> $item->longitude,
+                    'lat'=> (float) $item->latitude,
+                    'lng'=> (float) $item->longitude,
                 ];
 
             })->toArray();

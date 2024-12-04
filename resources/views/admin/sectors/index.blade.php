@@ -236,7 +236,7 @@
                 url: "{{ route('admin.sectors.show', 'id') }}".replace('id', id),
                 type: "GET",
                 success: function(response) {
-                    $("#formModalMap #exampleModalLabel").html("Mapa de del sector");
+                    $("#formModalMap #exampleModalLabel").html("Mapa del sector");
                     $("#formModalMap .modal-body").html(response);
                     $("#formModalMap").modal("show");                  
                 }

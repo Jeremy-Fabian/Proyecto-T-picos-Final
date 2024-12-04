@@ -359,6 +359,11 @@ return [
             'route' => 'admin.vehicles.index',
             'icon' => 'fas fa-truck-moving',
         ],
+        [
+            'text' => 'Mantenimiento',
+            'route' => 'admin.activities.index',
+            'icon' => 'fas fa-cog',
+        ],
         ['header' => 'GESTIÓN DE PERSONAL'],
         [
             'text' => 'Personas',

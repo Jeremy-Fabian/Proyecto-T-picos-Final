@@ -252,7 +252,7 @@ class RouteController extends Controller
 
         $routezone = Routezone::where('route_id', $id)->first();
         // Obtén todas las zonas disponibles para el selector
-        $zones = Zone::pluck('name', 'id'); // Obtiene las zonas en formato ['id' => 'nombre']
+        $zones = Zone::pluck('name', 'id')->prepend('Selecciona zonas', ''); // Obtiene las zonas en formato ['id' => 'nombre']
 
         // Obtén el zone_id actual de la ruta que se está editando (si existe)
         $currentZoneId = $routezone ? $routezone->zone_id : null;

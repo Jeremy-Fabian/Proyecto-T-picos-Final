@@ -57,6 +57,20 @@ class ScheduleController extends Controller
             $request->validate([
                 "name" => "unique:schedules"
             ]);
+
+            $time_start = $request->input('time_start');
+            $time_end = $request->input('time_end');
+
+            $overlap = Schedule::where(function($query) use ($time_start, $time_end) {
+                $query->whereBetween('time_start', [$time_start, $time_end])
+                    ->orWhereBetween('time_end', [$time_start, $time_end]);
+            })->exists();
+
+            if ($overlap) {
+                return response()->json([
+                    'message' => 'El horario se solapa con otro horario existente.'
+                ], 400);
+            }
             Schedule::create($request->all());
 
             return response()->json(['message' => 'Horario registrado'], 200);
@@ -92,6 +106,25 @@ class ScheduleController extends Controller
                 "name" => "unique:schedules,name," . $id
             ]);
             $schedule = Schedule::find($id);
+
+            // Obtener el horario actualizado de la solicitud
+            $time_start = $request->input('time_start');
+            $time_end = $request->input('time_end');
+            
+            // Validar si el horario se solapa con otro horario existente, excluyendo el horario que estamos actualizando
+            $overlap = Schedule::where(function($query) use ($time_start, $time_end, $id) {
+                $query->whereBetween('time_start', [$time_start, $time_end])
+                    ->orWhereBetween('time_end', [$time_start, $time_end]);
+            })
+            ->where('id', '!=', $id)  // Excluir el horario que se está editando
+            ->exists();
+
+            if ($overlap) {
+                return response()->json([
+                    'message' => 'El horario se solapa con otro horario existente.'
+                ], 400);
+            }
+
             $schedule->update($request->all());
             return response()->json(['message' => 'Horario actualizado correctamente'], 200);
         } catch (\Throwable $th) {

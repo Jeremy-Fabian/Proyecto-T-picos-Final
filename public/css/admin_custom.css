@@ -1,0 +1,81 @@
+/* public/css/custom.css */
+
+/* General */
+body {
+    font-family: Arial, Helvetica, sans-serif;
+}
+
+/* Sidebar and Navbar */
+.main-sidebar, .navbar {
+    background-color: #334FBA !important;
+    font-size: 13px;
+}
+
+.navbar {
+    background-color: #4964cd !important;
+}
+
+/* Navbar Header */
+.nav-header {
+    background-color: #253ea0 !important;
+    color: #fff !important;
+    /*border: 1px solid #1c37a4;*/
+    border-radius: .3rem;
+    font-size: 13px !important
+}
+
+/* Navbar Links */
+.nav-link {
+    color: #fff !important;
+}
+
+.font-weight-light .fa-search {
+    color: #fff !important;
+}
+
+.brand-text {
+    color: #fff !important;
+}
+
+/* Active Links */
+.active {
+    background-color: #4964cd !important;
+}
+
+.modal-header {
+    background-color: #334FBA !important;
+    color: #fff !important;
+}
+
+/* Sorting 
+.sorting {
+    background-color: #8D6E63 !important; 
+    color: #fff !important;
+}
+
+.sorting_desc, .sorting_asc {
+    background-color: #795548 !important;
+    color: #fff !important;
+}
+
+
+.card-header {
+    background-color: #795548 !important;
+    color: #fff !important;
+    font-family: Arial, Helvetica, sans-serif !important;
+    font-size: 20px !important;
+}*/
+
+/* Treeview 
+.nav-treeview {
+    text-indent: 8px; 
+}*/
+
+.nav-treeview .nav-item .nav-link .fas {
+    text-indent: 0;
+}
+
+/* custom.css */
+.preloader img.img-circle {
+    border-radius: 0 !important;
+}

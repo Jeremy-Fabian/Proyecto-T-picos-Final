@@ -95,3 +95,95 @@ LANGUAGE plpgsql;
 SELECT * FROM sp_vehicleroutes();
 
 
+
+
+
+CREATE OR REPLACE FUNCTION public.validate_date_within_activity_range(
+	p_activityschedule_id bigint,
+	p_date date)
+    RETURNS boolean
+    LANGUAGE 'plpgsql'
+    COST 100
+    VOLATILE PARALLEL UNSAFE
+AS $BODY$
+DECLARE
+    v_activity_id BIGINT;
+    v_start_date DATE;
+    v_end_date DATE;
+BEGIN
+    -- Obtener el ID de la actividad desde activityschedules
+    SELECT activity_id INTO v_activity_id
+    FROM activityschedules
+    WHERE id = p_activityschedule_id;
+
+    -- Verificar si se encontró el activity_id
+    IF v_activity_id IS NULL THEN
+        RAISE EXCEPTION 'ActivitySchedule no encontrado con ID %', p_activityschedule_id;
+    END IF;
+
+    -- Obtener las fechas de inicio y fin de la actividad
+    SELECT date_start, date_end
+    INTO v_start_date, v_end_date
+    FROM activities
+    WHERE id = v_activity_id;
+
+    -- Verificar si la fecha proporcionada está dentro del rango de la actividad
+    IF p_date >= v_start_date AND p_date <= v_end_date THEN
+        RETURN TRUE;  -- La fecha está dentro del rango de la actividad
+    ELSE
+        RETURN FALSE;  -- La fecha no está dentro del rango de la actividad
+    END IF;
+END;
+$BODY$;
+
+
+
+CREATE OR REPLACE FUNCTION public.validate_schedule_overlap(
+	p_day character varying,
+	p_time_start time without time zone,
+	p_time_end time without time zone)
+    RETURNS boolean
+    LANGUAGE 'plpgsql'
+    COST 100
+    VOLATILE PARALLEL UNSAFE
+AS $BODY$
+BEGIN
+    -- Verificar si ya existe un horario que se solape con el nuevo horario
+    IF EXISTS (
+        SELECT 1
+        FROM activityschedules
+        WHERE day = p_day
+          AND (
+            -- Caso 1: El nuevo horario empieza dentro de un horario existente
+            (p_time_start >= time_start AND p_time_start <= time_end)
+            OR
+            -- Caso 2: El nuevo horario termina dentro de un horario existente
+            (p_time_end >= time_start AND p_time_end <= time_end)
+          )
+    ) THEN
+        RETURN FALSE;  -- Existe un solapamiento
+    END IF;
+
+    -- Si no hay solapamiento, retornar TRUE
+    RETURN TRUE;
+END;
+$BODY$;
+
+
+
+
+CREATE OR REPLACE FUNCTION sp_userdrive(_id bigint)
+    RETURNS TABLE(user_id bigint, name varchar) 
+AS 
+$$
+BEGIN
+	RETURN QUERY
+    SELECT vo.user_id as user_id, us.name  
+	FROM vehicleocuppants vo
+	INNER JOIN users us ON vo.user_id = us.id
+	WHERE vo.vehicle_id=_id AND vo.usertype_id=1;
+END;
+$$
+LANGUAGE plpgsql;
+
+Select * from sp_userdrive(1);
