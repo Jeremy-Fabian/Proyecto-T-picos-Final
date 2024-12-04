@@ -17,6 +17,9 @@ use App\Http\Controllers\admin\ZoneController;
 use App\Http\Controllers\admin\ZonecoordController;
 use App\Http\Controllers\admin\UserController;
 use App\Http\Controllers\admin\UserTypesController;
+use App\Http\Controllers\admin\VehiclecolorController;
+use App\Http\Controllers\admin\VehicleocuppantController;
+use App\Http\Controllers\admin\VehicletypeController;
 use Laravel\Jetstream\Rules\Role;
 
 Route::resource('brands', BrandController::class)->names('admin.brands');
@@ -44,6 +47,12 @@ Route::resource('usertypes',UserTypesController::class)->names('admin.usertypes'
 Route::resource('users',UserController::class)->names('admin.users');
 
 
+Route::resource('types', VehicletypeController::class)->names('admin.types');
+Route::resource('colors', VehiclecolorController::class)->names('admin.colors');
+
+Route::resource('vehicleocuppants', VehicleocuppantController::class)->names('admin.vehicleocuppants');
+Route::get('/admin/vehicles/{vehicleId}/occupants', [VehicleocuppantController::class, 'cargar'])->name('admin.vehicleocuppants.cargar');
+Route::get('/admin/vehicleocuppants/{occupanteId}/destroy', [VehicleocuppantController::class, 'destroyer'])->name('admin.vehicleocuppants.destroyer');
 
 
 

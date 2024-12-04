@@ -341,15 +341,14 @@ return [
                     'route' => 'admin.models.index',
                     'icon' => 'fas fa-trailer',
                 ],
-               
                 [
                     'text' => 'Tipos',
-                    'url' => 'admin/settings',
+                    'route' => 'admin.types.index',
                     'icon' => 'fas fa-truck-loading',
                 ],
                 [
                     'text' => 'Colores',
-                    'url' => 'admin/settings',
+                    'route' => 'admin.colors.index',
                     'icon' => 'fas fa-palette',
                 ]
             ]
@@ -358,11 +357,6 @@ return [
             'text' => 'Unidades',
             'route' => 'admin.vehicles.index',
             'icon' => 'fas fa-truck-moving',
-        ],
-        [
-            'text' => 'Mantenimiento',
-            'route' => 'admin.activities.index',
-            'icon' => 'fas fa-cog',
         ],
         ['header' => 'GESTIÓN DE PERSONAL'],
         [
