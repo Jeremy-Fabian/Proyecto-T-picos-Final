@@ -1,18 +1,22 @@
+
+
 <div class="form-group">
     {!! Form::label('name', 'Nombre') !!}
     {!! Form::text('name', null, ['class' => 'form-control', 'placeholder' => 'Nombre de la ruta', 'requerid']) !!}
 </div>
 
 <div class="form-group">
-    {!! Form::label('zone_id', 'Zona') !!}
-    {!! Form::select('zone_id', $zones, null, ['class' => 'form-control', 'required']) !!}
-</div>
-
-<div class="form-check">
-
-    {!! Form::checkbox('status', 1, null, [
-        'class' => 'form-check-input',
+    {!! Form::label('zone_id', 'Zonas') !!}
+    {!! Form::select('zone_id[]', $zones, isset($zone_ids) ? $zone_ids : [], [
+        'class' => 'form-control select2',
+        'multiple' => 'multiple',
+        'data-placeholder' => 'Selecciona una o más zonas',
+        'style' => 'width: 100%;',
     ]) !!}
+</div>
+<div class="form-check">
+    {!! Form::hidden('status', 0) !!} <!-- Campo oculto para enviar 0 cuando está desmarcado -->
+    {!! Form::checkbox('status', 1, old('status', $route->status ?? 0) == 1, ['class' => 'form-check-input']) !!}
     {!! Form::label('status', 'Activo') !!}
 </div>
 <div class="form-row">
@@ -57,9 +61,16 @@
 </div>
 <div id="map" class="card" style="width: 100%; height:400px;"></div>
 
-
-
 <script>
+     $(document).ready(function() {
+        $('.select2').select2({
+            placeholder: 'Selecciona una o más zonas',
+            allowClear: true
+        });
+    });
+</script>
+<script>
+
     var perimeters = @json($perimeter);
 
     var routecoords = @json($routecoord);
@@ -310,3 +321,24 @@
 
 <script src="https://maps.googleapis.com/maps/api/js?key={{ env('GOOGLE_MAPS_API_KEY') }}&callback=initMap" async defer>
 </script>
+
+<style>
+    .select2-container .select2-selection--multiple {
+        background-color: #f0f8ff;
+        border-color: #007bff;
+        font-size: 14px;
+    }
+
+    .select2-container--default .select2-selection--multiple .select2-selection__rendered {
+        color: #007bff;
+    }
+
+    .select2-container--default .select2-selection--multiple .select2-selection__choice {
+        background-color: #007bff;
+        color: #fff;
+    }
+
+    .select2-container--default .select2-selection--multiple .select2-selection__choice__remove {
+        color: #fff;
+    }
+</style>

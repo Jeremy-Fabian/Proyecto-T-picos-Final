@@ -105,7 +105,7 @@ class ActivityscheduleController extends Controller
                 $activityschedule->update($request->except("activity_id"));
                 return response()->json(['message' => 'Horario actualizado'], 200);
             } else {
-                return response()->json(['message' => 'El horario está solapado con otro existente.'], 400);
+                return response()->json(['message' => 'El horario está solapado con otro existentess.'], 400);
             }
 
         } catch (\Throwable $th) {

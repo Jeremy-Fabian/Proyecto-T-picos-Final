@@ -137,22 +137,31 @@ class RouteController extends Controller
     public function store(Request $request)
     {
         try {
+            // Validar que el nombre de la ruta sea único
             $request->validate([
                 "name" => "unique:routes"
             ]);
 
+            // Crear la ruta sin los campos zone_id
             $route_ = Route::create($request->except("zone_id"));
-            // Obtener el zone_id del formulario
-            $zone_id = $request->input('zone_id');
 
-            // Crear el registro en Routezone con el id de la ruta y el zone_id
-            Routezone::create([
-                'route_id' => $route_->id, // Usar el id de la ruta recién creada
-                'zone_id' => $zone_id,     // El zone_id recibido del formulario
-            ]);
+            // Obtener las zonas seleccionadas del formulario
+            $zone_ids = $request->input('zone_id');
+
+            // Verificar si hay zonas seleccionadas
+            if ($zone_ids && is_array($zone_ids)) {
+                // Crear un registro en Routezone para cada zona seleccionada
+                foreach ($zone_ids as $zone_id) {
+                    Routezone::create([
+                        'route_id' => $route_->id,  // ID de la ruta recién creada
+                        'zone_id' => $zone_id,      // ID de la zona seleccionada
+                    ]);
+                }
+            }
+
             return response()->json(['message' => 'Ruta registrada'], 200);
         } catch (\Throwable $th) {
-            return response()->json(['message' => 'Error al registrar la ruta'], 500);
+            return response()->json(['message' => 'Error al registrar la ruta', 'error' => $th->getMessage(), 'trace' => $th->getTraceAsString()], 500);
         }
     }
 
@@ -250,12 +259,11 @@ class RouteController extends Controller
         $isEdit = true;
 
 
-        $routezone = Routezone::where('route_id', $id)->first();
-        // Obtén todas las zonas disponibles para el selector
-        $zones = Zone::pluck('name', 'id')->prepend('Selecciona zonas', ''); // Obtiene las zonas en formato ['id' => 'nombre']
+         // Traemos todas las zonas disponibles
+    $zones = Zone::pluck('name', 'id');  // ['id' => 'name']
 
-        // Obtén el zone_id actual de la ruta que se está editando (si existe)
-        $currentZoneId = $routezone ? $routezone->zone_id : null;
+    // Obtener las zonas asociadas a esta ruta (para preseleccionar)
+    $zone_ids = Routezone::where('route_id', $id)->pluck('zone_id')->toArray();  // Zonas asociadas
 
 
         $zonescoords = collect(DB::select("SELECT * FROM sp_zonecoords()"));
@@ -317,7 +325,7 @@ class RouteController extends Controller
 
 
 
-        return view('admin.routes.edit',compact('route', 'zones', 'currentZoneId', 'isEdit', 'perimeter', 'routecoord', 'routevertice'));
+        return view('admin.routes.edit',compact('route', 'zones', 'zone_ids', 'isEdit', 'perimeter', 'routecoord', 'routevertice'));
     }
 
     /**
@@ -326,27 +334,44 @@ class RouteController extends Controller
     public function update(Request $request, string $id)
     {
         try {
+            // Validación del nombre de la ruta
             $request->validate([
                 "name" => "unique:routes,name," . $id
             ]);
-
-            $route = Route::find($id);
+    
+            // Obtener la ruta por ID
+            $route = Route::findOrFail($id);
+    
+            // Actualizar la ruta, excepto el campo zone_id
             $route->update($request->except("zone_id"));
-
-            // Verificar y actualizar la relación con la zona solo si ha cambiado
-            $routezone = Routezone::where('route_id', $id)->first(); // Buscar la relación actual
-            $zone_id = $request->input('zone_id'); // Nuevo valor recibido del formulario
-
-            if ($routezone && $routezone->zone_id != $zone_id) {
-                // Si el valor ha cambiado, actualizarlo
-                $routezone->update([
-                    'zone_id' => $zone_id,
+    
+            // Obtener las zonas seleccionadas del formulario
+            $zone_ids = $request->input('zone_id', []); // Si no hay zonas seleccionadas, asignar un array vacío
+    
+            // Obtener las zonas actuales asociadas a esta ruta
+            $current_zone_ids = Routezone::where('route_id', $id)->pluck('zone_id')->toArray();
+    
+            // Encontrar las zonas que se deben eliminar (las que están en current_zone_ids pero NO están en zone_ids)
+            $zones_to_remove = array_diff($current_zone_ids, $zone_ids);
+    
+            // Eliminar las relaciones que ya no están seleccionadas
+            Routezone::where('route_id', $id)
+                ->whereIn('zone_id', $zones_to_remove)
+                ->delete();
+    
+            // Encontrar las zonas que se deben agregar (las que están en zone_ids pero NO están en current_zone_ids)
+            $zones_to_add = array_diff($zone_ids, $current_zone_ids);
+    
+            // Agregar las nuevas relaciones
+            foreach ($zones_to_add as $zone_id) {
+                Routezone::create([
+                    'route_id' => $route->id,  // ID de la ruta
+                    'zone_id' => $zone_id,      // ID de la zona seleccionada
                 ]);
             }
-
+    
             return response()->json(['message' => 'Ruta actualizada correctamente'], 200);
         } catch (\Throwable $th) {
-
             return response()->json(['message' => 'Error en la actualización: ' . $th->getMessage()], 500);
         }
     }

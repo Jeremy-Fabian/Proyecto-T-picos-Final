@@ -341,6 +341,7 @@ return [
                     'route' => 'admin.models.index',
                     'icon' => 'fas fa-trailer',
                 ],
+               
                 [
                     'text' => 'Tipos',
                     'route' => 'admin.types.index',
@@ -357,6 +358,11 @@ return [
             'text' => 'Unidades',
             'route' => 'admin.vehicles.index',
             'icon' => 'fas fa-truck-moving',
+        ],
+        [
+            'text' => 'Mantenimiento',
+            'route' => 'admin.activities.index',
+            'icon' => 'fas fa-cog',
         ],
         ['header' => 'GESTIÓN DE PERSONAL'],
         [
@@ -523,16 +529,16 @@ return [
             ],
         ],
         'Select2' => [
-            'active' => false,
+            'active' => true,
             'files' => [
                 [
                     'type' => 'js',
-                    'asset' => false,
+                    'asset' => true,
                     'location' => '//cdnjs.cloudflare.com/ajax/libs/select2/4.0.3/js/select2.min.js',
                 ],
                 [
                     'type' => 'css',
-                    'asset' => false,
+                    'asset' => true,
                     'location' => '//cdnjs.cloudflare.com/ajax/libs/select2/4.0.3/css/select2.css',
                 ],
             ],
