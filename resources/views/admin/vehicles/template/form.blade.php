@@ -36,7 +36,7 @@
     </div>
 </div>
 <div class="form-row">
-    <div class="form-group col-6">
+    <div class="form-group col-5">
         {!! Form::label('type_id', 'Tipo') !!}
         {!! Form::select('type_id', $types, null, [
             'class' => 'form-control',
@@ -44,14 +44,48 @@
             'required',
         ]) !!}
     </div>
-    <div class="form-group col-6">
+    {{-- <div class="form-group col-6">
         {!! Form::label('color_id', 'Color') !!}
         {!! Form::select('color_id', $colors, null, [
             'class' => 'form-control',
             'id' => 'color_id',
             'required',
         ]) !!}
+    </div> --}}
+    <div class="form-group col-5">
+        {!! Form::label('color_id', 'Color') !!}
+        <select name="color_id" id="color_id" class="form-control" required>
+            @foreach($colors as $color)
+                <option value="{{ $color->id }}" data-color="{{ $color->color }}" @if(old('color_id', $vehicle->color_id ?? null) == $color->id) selected @endif>
+                    {{ $color->name }}
+                </option>
+            @endforeach
+        </select>
     </div>
+    <div class="form-group col-2" style="align-content: center;"> 
+        <span id="colorBadge" class="badge" style="background-color: #ffffff; margin-top: 25px;">Color</span>
+    </div>
+
+    
+    <script>
+        document.getElementById('color_id').addEventListener('change', function() {
+            var selectedOption = this.options[this.selectedIndex];
+            var color = selectedOption.getAttribute('data-color');
+            document.getElementById('colorBadge').style.backgroundColor = color;
+        });
+
+        document.addEventListener('DOMContentLoaded', function() {
+            const colorSelect = document.getElementById('color_id');
+            const colorBadge = document.getElementById('colorBadge');
+            colorSelect.addEventListener('change', function() {
+                const selectedOption = colorSelect.options[colorSelect.selectedIndex];
+                const color = selectedOption.style.backgroundColor;
+                colorBadge.style.backgroundColor = color; 
+            });
+        }); 
+    </script>
+    
+   
 </div>
 <div class="form-row">
     <div class="form-group col-6">

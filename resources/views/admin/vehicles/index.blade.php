@@ -7,7 +7,7 @@
     <div class="card">
         <div class="card-header">
             <!--<a href="{{ route('admin.vehicles.create') }}" class="btn btn-success float-right"><i class="fas fa-plus"></i>
-                                                                                                                                                                                                                                            Nuevo</a>-->
+                                                                                                                                                                                                                                                    Nuevo</a>-->
             <button class="btn btn-success float-right" id="btnNuevo"><i class="fas fa-plus"></i> Nuevo</button>
             <h3>Vehículos</h3>
         </div>
@@ -41,6 +41,24 @@
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="exampleModalLabel">Formulario de vehículo</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    ...
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="formModalOcupantes" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabelOcu"
+        aria-hidden="true">
+        <div class="modal-dialog modal-lg" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabelOcu">MODAL OCUPANTES
+                    </h5>
                     <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>
@@ -143,6 +161,26 @@
                 }
             });
         });
+
+        $(document).on('click', '.btnOcupante', function() {
+            var id = $(this).attr("id"); // Captura el ID del vehículo
+            $.ajax({
+                url: "{{ route('admin.vehicleocuppants.cargar', 'id') }}".replace('id', id),
+                type: "GET",
+                success: function(response) {
+                    $("#formModalOcupantes #exampleModalLabelOcu").html("Ocupantes del Vehículo");
+                    $("#formModalOcupantes .modal-body").html(response);
+                    $("#formModalOcupantes").modal("show");
+                },
+                error: function(xhr) {
+                    var response = xhr.responseJSON;
+                    Swal.fire('Error', response ? response.message :
+                        'Ocurrió un error al cargar los datos', 'error');
+                }
+            });
+        });
+
+
 
         $(document).on('click', '.btnEditar', function() {
             var id = $(this).attr("id");

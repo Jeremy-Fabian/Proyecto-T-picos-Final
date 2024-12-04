@@ -176,16 +176,20 @@ class BrandController extends Controller
     public function destroy(string $id)
     {
         try {
-            $brand = Brand::find($id);
-            $brand->delete();
+            $brand = Brand::findOrFail($id); // Verifica que la marca exista
+
+            $brand->delete(); // Intenta eliminar la marca
 
             return response()->json(['message' => 'Marca eliminada'], 200);
-        } catch (\Throwable $th) {
-            return response()->json(['message' => 'Error de eliminación'], 500);
+        } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
+            return response()->json(['message' => 'Marca no encontrada'], 404);
+        } catch (\Illuminate\Database\QueryException $e) {
+            if ($e->getCode() == '23503') {
+                return response()->json(['message' => 'No se puede eliminar la marca porque está asociada a uno o más modelos'], 409);
+            }
+            return response()->json(['message' => 'Error en la base de datos: ' . $e->getMessage()], 500);
+        } catch (\Exception $e) {
+            return response()->json(['message' => 'Error inesperado: ' . $e->getMessage()], 500);
         }
-
-
-        /*return redirect()->route('admin.brands.index')
-            ->with('success', 'Marca eliminada correctamente');*/
     }
 }

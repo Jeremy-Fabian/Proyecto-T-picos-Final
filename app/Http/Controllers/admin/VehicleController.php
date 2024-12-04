@@ -5,9 +5,11 @@ namespace App\Http\Controllers\admin;
 use App\Http\Controllers\Controller;
 use App\Models\Brand;
 use App\Models\Brandmodel;
+use App\Models\User;
 use App\Models\Vehicle;
 use App\Models\Vehiclecolor;
 use App\Models\Vehicleimage;
+use App\Models\Vehicleocuppant;
 use App\Models\Vehicletype;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -22,6 +24,7 @@ class VehicleController extends Controller
     public function index(Request $request)
     {
         $vehicles = DB::select('SELECT * FROM sp_vehicles();');
+        $personas = User::join('usertypes','usertypes.id','users.usertype_id')->select(['users.id','users.name', 'usertypes.name AS tipo'])->get();
 
         if ($request->ajax()) {
 
@@ -48,13 +51,13 @@ class VehicleController extends Controller
                         </div>
                     </div>';
                 })
-                ->addColumn('occupants', function () {
-                    return '<button class="btn btn-success btn-sm"><i class="fas fa-people-arrows"></i>&nbsp;&nbsp;(0)</button>';
+                ->addColumn('occupants', function ($vehicle) {
+                    return '<button class="btn  btnOcupante btn-success btn-sm"  id="' . $vehicle->id. '"><i class="fas fa-people-arrows"></i>&nbsp;&nbsp;(' . Vehicleocuppant::where('vehicle_id', $vehicle->id)->where('status', 0)->count() . ')</button>';
                 })
                 ->rawColumns(['logo', 'status', 'occupants', 'actions'])  // Declarar columnas que contienen HTML
                 ->make(true);
         } else {
-            return view('admin.vehicles.index', compact('vehicles'));
+            return view('admin.vehicles.index', compact('vehicles', 'personas'));
         }
     }
 
@@ -68,7 +71,8 @@ class VehicleController extends Controller
         $brands = $brandsSQL->pluck("name", "id");
         $models = Brandmodel::where("brand_id", $brandsSQL->first()->id)->pluck("name", "id");
         $types = Vehicletype::pluck("name", "id");
-        $colors = Vehiclecolor::pluck("name", "id");
+        //$colors = Vehiclecolor::pluck("color","name", "id");
+        $colors = Vehiclecolor::all();
         return view("admin.vehicles.create", compact("brands", "models", "types", "colors"));
     }
 
@@ -131,7 +135,7 @@ class VehicleController extends Controller
         $brands = $brandsSQL->pluck("name", "id");
         $models = Brandmodel::where("brand_id", $vehicle->brand_id)->pluck("name", "id");
         $types = Vehicletype::pluck("name", "id");
-        $colors = Vehiclecolor::pluck("name", "id");
+        $colors = Vehiclecolor::all();
         return view("admin.vehicles.edit", compact("brands", "models", "types", "colors", "vehicle"));
     }
 
@@ -142,21 +146,23 @@ class VehicleController extends Controller
     {
         try {
 
-            $request->validate([
+            $rules = [
                 "name" => "unique:vehicles,name," . $id,
                 "code" => "unique:vehicles,code," . $id,
-                "plate" => "unique:vehicles,plate," . $id
-            ]);
+                //"plate" => "unique:vehicles,plate," . $id
+            ];
+            $vehicle = Vehicle::find($id);
+            if($request->plate && $request->plate != $vehicle->plate){
+                $rules['plate'] = "unique:vehicles,plate";
+            }   
+            $request->validate($rules);
 
-            if (!isset($request->status)) {
-                $status = 0;
-            } else {
-                $status = 1;
+            if((int)$request->occupant_capacity < Vehicleocuppant::where('vehicle_id', $id)->where('status', 0)->count()){
+                return response()->json(['message' => 'La capacidad no puede ser menor a los Ocupantes registrador actualmente'], 409);
             }
 
-            $vehicle = Vehicle::find($id);
-
-            $vehicle->update($request->except("image") + ["status" => $status]);
+            $request['status'] = !isset($request->status) ? 0 : 1;
+            $vehicle->update($request->except("image"));
 
             if ($request->image != "") {
                 $image = $request->file("image")->store("public/vehicles_images/" . $vehicle->id);
