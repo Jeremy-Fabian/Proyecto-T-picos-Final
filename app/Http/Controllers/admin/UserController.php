@@ -92,7 +92,7 @@ class UserController extends Controller
                 'usertype_id' => 'required|integer|exists:usertypes,id',
                 'zone_id' => 'nullable|integer|exists:zones,id',
                 'profile_photo_path' => 'nullable|image|max:2048',
-                'license' => 'nullable|string|max:20|unique:users,license,', // Agregamos validación para 'license'
+                'license' => 'nullable|string|max:20|unique:users,license', // Agregamos validación para 'license'
             ]);
             // Validación adicional para licencia si el tipo de usuario es 'Conductor'
             if ($request->usertype_id == $this->getConductorTypeId()) { // Reemplaza con tu lógica para obtener el ID de conductor
@@ -168,7 +168,7 @@ class UserController extends Controller
                 'usertype_id' => 'required|integer|exists:usertypes,id',
                 'zone_id' => 'nullable|integer|exists:zones,id',
                 'profile_photo_path' => 'nullable|image|max:2048',
-                'license' => 'nullable|string|max:20|unique:users,license,' . $id, // Validación base para 'license'
+                'license' => 'nullable|string|max:20|unique:users,license' . $id, // Validación base para 'license'
             ]);
 
             // Validación adicional para licencia si el tipo de usuario es 'Conductor'

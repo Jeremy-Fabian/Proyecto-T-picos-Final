@@ -28,7 +28,7 @@ class VehicleocuppantController extends Controller
             ->where('vehicleocuppants.vehicle_id', $id)->where('vehicleocuppants.status', 0)->select('vehicleocuppants.*', 'users.name AS name_user', 'usertypes.name AS name_tipo')->get();
 
         $contC = $ocuppantes->where('name_tipo', 'CONDUCTOR')->count();
-        $contNoC = $ocuppantes->where('name_tipo', '!=', 'CONDUCTOR')->count();
+        $contNoC = $ocuppantes->where('name_tipo', 'RECOLECTOR')->count();
 
         $ocupantesUserIds = $ocuppantes->pluck('user_id')->toArray();
 
